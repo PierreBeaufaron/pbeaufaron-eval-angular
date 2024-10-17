@@ -1,7 +1,6 @@
 import { NgIf } from '@angular/common';
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CarService } from '../services/car.service';
 import { Car } from '../app.component';
 
 @Component({
@@ -12,12 +11,11 @@ import { Car } from '../app.component';
   styleUrl: './search.component.scss'
 })
 export class SearchComponent implements OnInit {
-  private readonly carService = inject(CarService)
-
   searchForm: FormGroup
+  formValid: boolean = true
   car: Car[]
 
-  @Output() formSubmitted: EventEmitter<Car[]> = new EventEmitter<Car[]>()
+  @Output() searchCar: EventEmitter<{search: string}> = new EventEmitter<{search: string}>()
 
   ngOnInit(): void {
     this.searchForm = new FormGroup({
@@ -29,10 +27,14 @@ export class SearchComponent implements OnInit {
   }
 
   onSubmitSearch() {
-    const { search } = this.searchForm.value
-    this.car = this.carService.getCars()
-    this.car = this.car.filter(c => c.brandComp.toLowerCase().includes(search))
-    this.formSubmitted.emit(this.car)
+    if (this.searchForm.valid) {
+      const { search } = this.searchForm.value
+      this.searchCar.emit({search})
+    } else {
+      this.formValid = false
+    }
   }
+
+  
 
 }
